@@ -57,7 +57,19 @@ cp .env.example .env   # fill in MongoDB URI, JWT secret, AI API key
 uvicorn main:app --reload --port 8000
 ```
 
-Health check: `GET http://localhost:8000/api/health`
+Health checks:
+- `GET http://localhost:8000/api/health` — API is up
+- `GET http://localhost:8000/api/health/db` — MongoDB connection is reachable
+
+**Local MongoDB (no Atlas account needed for development):**
+
+```bash
+docker run -d --name resume-analyzer-mongo -p 27017:27017 mongo:7
+# then set in backend/.env:
+# MONGODB_URI=mongodb://localhost:27017
+```
+
+For production, point `MONGODB_URI` at a MongoDB Atlas cluster instead.
 
 ### Frontend
 
