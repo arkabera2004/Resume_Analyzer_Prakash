@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Award, FileUp, Percent, Tags, UploadCloud } from "lucide-react";
+import { Award, FileUp, Percent, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { ResumeUploadCard } from "@/components/resume-upload-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 
@@ -64,30 +64,7 @@ function DashboardPage() {
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-3">
-        <Card className="border-border shadow-none lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Start an analysis</CardTitle>
-            <CardDescription>
-              Resume upload and analysis are not connected yet. Once the analysis service is live,
-              your report will appear here.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <UploadCloud className="size-6" />
-              </span>
-              <h3 className="mt-4 font-semibold text-foreground">No resume uploaded yet</h3>
-              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                Upload a PDF or DOCX resume to receive an ATS score, keyword breakdown, and job
-                match analysis.
-              </p>
-              <Button className="mt-6" disabled>
-                Upload resume — coming soon
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <ResumeUploadCard />
 
         <Card className="border-border shadow-none">
           <CardHeader>

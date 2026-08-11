@@ -36,8 +36,12 @@ type RequestOptions = {
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, auth = true, signal } = options;
 
+  const isFormData = body instanceof FormData;
+
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  // FormData sets its own multipart Content-Type (with boundary) — the browser
+  // handles this automatically, and setting it manually breaks the boundary.
+  if (body !== undefined && !isFormData) headers["Content-Type"] = "application/json";
 
   if (auth) {
     const token = getToken();
@@ -50,7 +54,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       method,
       headers,
       signal: signal ?? null,
-      body: body === undefined ? null : JSON.stringify(body),
+      body: body === undefined ? null : isFormData ? (body as FormData) : JSON.stringify(body),
     });
   } catch {
     throw new ApiError("Cannot reach the server. Check your connection and try again.", 0);
