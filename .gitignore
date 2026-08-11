@@ -1,0 +1,21 @@
+# --- Backend (Python) ---
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/.env
+
+# --- Frontend (Node) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/*.local
+
+# --- OS / Editor ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Uploaded resumes (never commit user files) ---
+backend/uploads/
