@@ -6,11 +6,14 @@ configurable LLM provider (Gemini/OpenAI) for recommendations.
 
 > 🚧 **Status:** Under active development. This README will grow with each phase.
 > Currently complete: **Phase 1 (project setup)**, **Phase 2 (backend + MongoDB)**,
-> **Phase 3 (authentication)**.
+> **Phase 3 (authentication)**, **Phase 4 (frontend + routing)**.
 
 ## Tech Stack
 
-**Frontend:** React, Vite, Tailwind CSS, React Router, Axios, Recharts, Lucide React
+**Frontend:** React 19, TanStack Start (file-based routing + SSR), TypeScript, Tailwind CSS v4,
+shadcn/ui, TanStack Query, Lucide React. Generated with [Lovable](https://lovable.dev) and wired
+to this repo's own FastAPI backend (no Supabase/Lovable Cloud — plain `fetch` over HTTP, JWT in
+localStorage).
 **Backend:** Python, FastAPI, Pydantic, Uvicorn, JWT auth, Passlib/bcrypt
 **Database:** MongoDB (MongoDB Atlas), Motor (async PyMongo)
 **AI:** Configurable provider (Gemini or OpenAI) via environment variables
@@ -35,12 +38,11 @@ Resume_Analyzer_Prakash/
 │   └── .env.example
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── context/
-│   │   └── utils/
+│   │   ├── routes/            # file-based routes (TanStack Start) — index, login,
+│   │   │                        register, _authenticated.{dashboard,profile}
+│   │   ├── components/        # navbar, footer, protected-route, ui/ (shadcn)
+│   │   ├── lib/                # api.ts (fetch wrapper), auth.tsx (auth context), utils
+│   │   └── hooks/
 │   └── .env.example
 └── README.md
 ```
@@ -72,6 +74,11 @@ docker run -d --name resume-analyzer-mongo -p 27017:27017 mongo:7
 
 For production, point `MONGODB_URI` at a MongoDB Atlas cluster instead.
 
+`FRONTEND_URL` in `backend/.env` is a **comma-separated list** of allowed CORS origins — the
+frontend dev server's port isn't fixed (TanStack Start takes the first free port starting at
+8080), so the default covers `5173`, `8080`, and `8081`. Add your actual dev port if it picks a
+different one, and your deployed frontend URL in production.
+
 ### Frontend
 
 ```bash
@@ -81,7 +88,7 @@ cp .env.example .env   # set VITE_API_URL if backend isn't on localhost:8000
 npm run dev
 ```
 
-App runs at `http://localhost:5173`.
+Runs on the first free port starting at `8080` (printed in the terminal on startup).
 
 ## Environment Variables
 
@@ -109,6 +116,15 @@ pip install -r requirements.txt
 # separate `resume_analyzer_test` database, never your dev data
 pytest -v
 ```
+
+## Note on the frontend's deployment target
+
+The frontend build (`npm run build`) uses Nitro with a **Cloudflare Workers** preset by default
+(inherited from the Lovable/TanStack Start template), not the Vercel/Render split described in
+the original project plan. It still runs as a normal Vite dev server locally and builds fine;
+the deployment target just needs to be decided in Phase 17 — either adjust the Nitro preset for
+Vercel/Node hosting, or deploy the frontend to Cloudflare Pages/Workers instead. Not blocking for
+now since the backend (FastAPI on Render/Railway) is unaffected either way.
 
 ## Roadmap
 
