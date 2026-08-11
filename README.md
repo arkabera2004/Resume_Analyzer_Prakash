@@ -5,7 +5,8 @@ matches them against job descriptions — built with React + FastAPI + MongoDB, 
 configurable LLM provider (Gemini/OpenAI) for recommendations.
 
 > 🚧 **Status:** Under active development. This README will grow with each phase.
-> Currently complete: **Phase 1 — Project setup & folder structure.**
+> Currently complete: **Phase 1 (project setup)**, **Phase 2 (backend + MongoDB)**,
+> **Phase 3 (authentication)**.
 
 ## Tech Stack
 
@@ -86,6 +87,28 @@ App runs at `http://localhost:5173`.
 
 See `backend/.env.example` and `frontend/.env.example`. Never commit `.env` files —
 they're already excluded via `.gitignore`.
+
+## API Overview (so far)
+
+| Method | Path | Auth required | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | No | Create an account, returns a JWT |
+| POST | `/api/auth/login` | No | Exchange email/password for a JWT |
+| GET | `/api/auth/me` | Yes | Current user's profile |
+| POST | `/api/auth/logout` | Yes | Client-side token discard (JWT is stateless) |
+
+Send `Authorization: Bearer <token>` on authenticated requests.
+
+## Backend Tests
+
+```bash
+cd backend
+source venv/bin/activate
+pip install -r requirements.txt
+# needs a reachable MongoDB (see "Local MongoDB" above) — tests use a
+# separate `resume_analyzer_test` database, never your dev data
+pytest -v
+```
 
 ## Roadmap
 

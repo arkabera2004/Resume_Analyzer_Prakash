@@ -1,12 +1,16 @@
 """FastAPI application entrypoint."""
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.database import client, close_mongo_connection, connect_to_mongo
+from app.routes import auth
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
@@ -31,6 +35,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth.router)
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(_request: Request, exc: Exception):
+    """Never leak internal stack traces / API keys / DB errors to the client."""
+    logger.exception("Unhandled exception: %s", exc)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "An unexpected error occurred. Please try again."},
+    )
 
 
 @app.get("/")
