@@ -20,10 +20,17 @@ class Settings(BaseSettings):
     ai_model: str = "gemini-1.5-flash"
 
     # Misc
-    frontend_url: str = "http://localhost:5173"
+    # Comma-separated list — the frontend's dev server port varies (TanStack Start
+    # picks the first free port starting at 8080; Vite SPAs default to 5173), and
+    # a deployed app will add its production URL here too.
+    frontend_url: str = "http://localhost:5173,http://localhost:8080,http://localhost:8081"
     max_upload_size_mb: int = 5
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.frontend_url.split(",") if origin.strip()]
 
 
 @lru_cache
