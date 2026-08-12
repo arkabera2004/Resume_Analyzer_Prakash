@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Deploy target is Vercel (per the original project spec), not Nitro's default
+  // Cloudflare Workers preset. Vercel's own build environment would auto-detect
+  // this anyway, but pinning it explicitly keeps `npm run build` output correct
+  // for local verification too.
+  nitro: { preset: "vercel" },
 });

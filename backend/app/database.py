@@ -1,6 +1,7 @@
 """MongoDB connection setup and lifecycle management (Motor async driver)."""
 import logging
 
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import PyMongoError
 
@@ -10,7 +11,17 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
-client: AsyncIOMotorClient = AsyncIOMotorClient(settings.mongodb_uri)
+# tlsCAFile=certifi.where() works around outdated system CA bundles on some
+# serverless runtimes. tlsDisableOCSPEndpointCheck avoids a separate failure
+# mode: these sandboxes often can't reach the CA's OCSP responder over the
+# network, which otherwise aborts the handshake too (the cert chain itself is
+# still fully verified via the CA bundle — this only skips the live
+# revocation-status check).
+client: AsyncIOMotorClient = AsyncIOMotorClient(
+    settings.mongodb_uri,
+    tlsCAFile=certifi.where(),
+    tlsDisableOCSPEndpointCheck=True,
+)
 db: AsyncIOMotorDatabase = client[settings.mongodb_db_name]
 
 
