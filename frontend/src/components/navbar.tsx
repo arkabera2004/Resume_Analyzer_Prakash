@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { FileSearch, LogOut, Menu } from "lucide-react";
+import { FileSearch, LogOut, Menu, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -13,7 +13,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/lib/auth";
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleTheme}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    </Button>
+  );
+}
 
 export function Navbar() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -77,17 +92,20 @@ export function Navbar() {
               </Button>
             </>
           )}
+          <ThemeToggle />
         </nav>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          aria-label="Toggle menu"
-          onClick={() => setMobileOpen((open) => !open)}
-        >
-          <Menu className="size-5" />
-        </Button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Toggle menu"
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            <Menu className="size-5" />
+          </Button>
+        </div>
       </div>
 
       {mobileOpen ? (

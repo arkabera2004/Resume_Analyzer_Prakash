@@ -116,8 +116,8 @@ export function ResumeUploadCard({ onTextExtracted, onScoreResult }: ResumeUploa
         <CardTitle>Start an analysis</CardTitle>
         <CardDescription>
           {status === "success"
-            ? "Text extracted. Job description matching lands in a later phase."
-            : "Upload a PDF or DOCX resume to get a deterministic ATS score — job matching lands next."}
+            ? "Text extracted. Calculate an ATS score, then match it against a job below."
+            : "Upload a PDF or DOCX resume to get a deterministic ATS score and job match report."}
         </CardDescription>
       </CardHeader>
       <CardContent>
