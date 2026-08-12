@@ -5,6 +5,7 @@ from app.config import get_settings
 from app.models.user import UserModel
 from app.schemas.resume import ResumeUploadResponse
 from app.services.resume_parser import ResumeParsingError, extract_resume_text, get_file_extension
+from app.services.resume_structurer import structure_resume
 from app.utils.deps import get_current_user
 
 router = APIRouter(prefix="/api/resume", tags=["resume"])
@@ -38,4 +39,5 @@ async def upload_resume(
         character_count=len(text),
         word_count=len(text.split()),
         extracted_text=text,
+        parsed=structure_resume(text),
     )
