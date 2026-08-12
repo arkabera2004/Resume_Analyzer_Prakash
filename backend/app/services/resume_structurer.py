@@ -7,6 +7,7 @@ about what's in the resume.
 """
 import re
 
+from app.services.keyword_matching import match_keywords
 from app.services.skill_taxonomy import SKILL_CATEGORIES
 
 EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
@@ -102,27 +103,10 @@ def _guess_name(text: str) -> str | None:
 
 
 def extract_skills(text: str) -> dict[str, list[str]]:
-    """Keyword-match the whole resume against the skill taxonomy, category by category.
-
-    Keywords are checked longest-first so "Node.js" is matched (and kept) before the
-    shorter "Node" is even tried against the same span — otherwise a resume that only
-    says "Node.js" would confusingly report both "Node.js" and "Node" as separate hits.
-    """
+    """Keyword-match the whole resume against the skill taxonomy, category by category."""
     found: dict[str, list[str]] = {}
     for category, keywords in SKILL_CATEGORIES.items():
-        matches = []
-        matched_spans: list[tuple[int, int]] = []
-        for keyword in sorted(keywords, key=len, reverse=True):
-            pattern = r"(?<![A-Za-z0-9])" + re.escape(keyword) + r"(?![A-Za-z0-9])"
-            match = re.search(pattern, text, re.IGNORECASE)
-            if not match:
-                continue
-            # Skip if this match sits entirely inside a span already claimed by a
-            # longer keyword (e.g. "Node" inside an already-matched "Node.js").
-            if any(start <= match.start() and match.end() <= end for start, end in matched_spans):
-                continue
-            matches.append(keyword)
-            matched_spans.append((match.start(), match.end()))
+        matches = match_keywords(text, keywords)
         if matches:
             found[category] = matches
     return found
