@@ -82,3 +82,25 @@ class DashboardStats(BaseModel):
     avg_match_score: Optional[int] = None
     unique_skills_count: int
     recent_analyses: list[AnalysisSummary]
+
+
+class CompareAnalysesRequest(BaseModel):
+    analysis_id_a: str
+    analysis_id_b: str
+
+
+class CompareAnalysesResponse(BaseModel):
+    """Compares two saved analyses. `analysis_a` is always the older of the two
+    (by created_at) so 'improvement' consistently reads as a -> b, regardless of
+    which id the caller passed first."""
+
+    analysis_a: AnalysisSummary
+    analysis_b: AnalysisSummary
+    ats_score_change: Optional[int] = None
+    match_score_change: Optional[int] = None
+    new_skills: list[str]
+    removed_skills: list[str]
+    new_keywords: list[str]
+    removed_keywords: list[str]
+    improved_sections: list[str]
+    regressed_sections: list[str]

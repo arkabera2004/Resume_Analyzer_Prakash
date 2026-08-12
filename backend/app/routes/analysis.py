@@ -6,8 +6,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.database import get_analyses_collection
 from app.models.analysis import AnalysisModel
 from app.models.user import UserModel
-from app.schemas.analysis import AnalysisDetail, AnalysisSummary, SaveAnalysisRequest
-from app.services.analysis_serializers import doc_to_detail, doc_to_summary
+from app.schemas.analysis import (
+    AnalysisDetail,
+    AnalysisSummary,
+    CompareAnalysesRequest,
+    CompareAnalysesResponse,
+    SaveAnalysisRequest,
+)
+from app.services.analysis_serializers import compute_comparison, doc_to_detail, doc_to_summary
 from app.utils.deps import get_current_user
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
@@ -24,6 +30,25 @@ async def save_analysis(
 
     saved = await analyses.find_one({"_id": result.inserted_id})
     return doc_to_detail(saved)
+
+
+@router.post("/compare", response_model=CompareAnalysesResponse)
+async def compare_analyses(
+    payload: CompareAnalysesRequest,
+    current_user: UserModel = Depends(get_current_user),
+):
+    if payload.analysis_id_a == payload.analysis_id_b:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Choose two different analyses to compare."
+        )
+
+    doc_1 = await get_owned_analysis_or_404(payload.analysis_id_a, current_user.id)
+    doc_2 = await get_owned_analysis_or_404(payload.analysis_id_b, current_user.id)
+
+    # Always diff older -> newer, regardless of the order the caller passed them in,
+    # so "improvement" consistently means "the more recent one got better."
+    older, newer = (doc_1, doc_2) if doc_1["created_at"] <= doc_2["created_at"] else (doc_2, doc_1)
+    return compute_comparison(older, newer)
 
 
 @router.get("/history", response_model=list[AnalysisSummary])
