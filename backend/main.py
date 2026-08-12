@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.database import client, close_mongo_connection, connect_to_mongo
-from app.routes import ai, auth, job, match, resume
+from app.routes import ai, analysis, auth, dashboard, job, match, resume
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -41,6 +41,8 @@ app.include_router(resume.router)
 app.include_router(job.router)
 app.include_router(match.router)
 app.include_router(ai.router)
+app.include_router(analysis.router)
+app.include_router(dashboard.router)
 
 
 @app.exception_handler(Exception)

@@ -27,7 +27,14 @@ class _ObjectIdPydanticAnnotation:
         return core_schema.no_info_plain_validator_function(
             validate,
             serialization=core_schema.plain_serializer_function_ser_schema(
-                str, return_schema=core_schema.str_schema()
+                str,
+                return_schema=core_schema.str_schema(),
+                # "json" only: plain `.model_dump()` (used when building the dict we
+                # hand to Motor for inserts/queries) must keep a real ObjectId, or
+                # MongoDB stores it as a string and later `{"user_id": ObjectId(...)}"
+                # queries silently match nothing. `.model_dump(mode="json")` /
+                # `.model_dump_json()` still stringify, for JSON responses.
+                when_used="json",
             ),
         )
 
