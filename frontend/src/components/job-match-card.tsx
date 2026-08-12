@@ -44,7 +44,14 @@ function SkillBadges({
   );
 }
 
-export function JobMatchCard({ resumeText }: { resumeText: string }) {
+type JobMatchCardProps = {
+  resumeText: string;
+  /** Called whenever a match completes, so the dashboard can offer to save it
+   * alongside the ATS score. */
+  onMatchResult?: (jobTitle: string | null, result: MatchResult) => void;
+};
+
+export function JobMatchCard({ resumeText, onMatchResult }: JobMatchCardProps) {
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState<MatchResult | null>(null);
   const [isMatching, setIsMatching] = useState(false);
@@ -69,6 +76,7 @@ export function JobMatchCard({ resumeText }: { resumeText: string }) {
     try {
       const match = await matchResumeToJob(resumeText, jobDescription);
       setResult(match);
+      onMatchResult?.(match.parsed_job.job_title, match);
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : "Unexpected error. Please try again.";

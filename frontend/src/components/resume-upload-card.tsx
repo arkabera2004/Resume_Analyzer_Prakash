@@ -33,9 +33,12 @@ type ResumeUploadCardProps = {
   /** Called with the extracted resume text whenever an upload succeeds, so a
    * sibling component (e.g. the job-match card) can reuse it without re-uploading. */
   onTextExtracted?: (text: string) => void;
+  /** Called with the filename + score whenever an ATS score is calculated, so the
+   * dashboard can offer to save the analysis. */
+  onScoreResult?: (filename: string, score: ATSScoreResult) => void;
 };
 
-export function ResumeUploadCard({ onTextExtracted }: ResumeUploadCardProps = {}) {
+export function ResumeUploadCard({ onTextExtracted, onScoreResult }: ResumeUploadCardProps = {}) {
   const [status, setStatus] = useState<Status>("idle");
   const [result, setResult] = useState<ResumeUploadResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -50,6 +53,7 @@ export function ResumeUploadCard({ onTextExtracted }: ResumeUploadCardProps = {}
     try {
       const score = await analyzeResume(result.extracted_text);
       setScoreResult(score);
+      onScoreResult?.(result.filename, score);
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : "Unexpected error. Please try again.";
