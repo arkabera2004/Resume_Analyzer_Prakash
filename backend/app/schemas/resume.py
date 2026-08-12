@@ -31,3 +31,20 @@ class ResumeUploadResponse(BaseModel):
     word_count: int
     extracted_text: str
     parsed: ParsedResume
+
+
+class ATSScoreRequest(BaseModel):
+    """Re-analyze already-extracted text (from a prior /upload call) — avoids
+    re-uploading the file just to compute a score."""
+    extracted_text: str
+
+
+class ATSScoreResponse(BaseModel):
+    overall_score: int
+    keyword_score: int
+    skills_score: int
+    structure_score: int
+    experience_score: int
+    project_score: int
+    formatting_score: int
+    parsed: ParsedResume
