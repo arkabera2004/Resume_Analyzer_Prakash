@@ -44,6 +44,9 @@ export function Navbar() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/history">History</Link>
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="ml-1">
@@ -95,6 +98,11 @@ export function Navbar() {
                 <Button variant="ghost" className="justify-start" asChild>
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
                     Dashboard
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link to="/history" onClick={() => setMobileOpen(false)}>
+                    History
                   </Link>
                 </Button>
                 <Button variant="ghost" className="justify-start" asChild>

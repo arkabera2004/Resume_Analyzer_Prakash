@@ -81,3 +81,23 @@ export async function getAnalysis(id: string): Promise<AnalysisDetail> {
 export async function deleteAnalysis(id: string): Promise<void> {
   await apiRequest<void>(`/analysis/${id}`, { method: "DELETE" });
 }
+
+export type CompareResult = {
+  analysis_a: AnalysisSummary;
+  analysis_b: AnalysisSummary;
+  ats_score_change: number | null;
+  match_score_change: number | null;
+  new_skills: string[];
+  removed_skills: string[];
+  new_keywords: string[];
+  removed_keywords: string[];
+  improved_sections: string[];
+  regressed_sections: string[];
+};
+
+export async function compareAnalyses(idA: string, idB: string): Promise<CompareResult> {
+  return apiRequest<CompareResult>("/analysis/compare", {
+    method: "POST",
+    body: { analysis_id_a: idA, analysis_id_b: idB },
+  });
+}
