@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 
 import { AiRecommendationsCard } from "@/components/ai-recommendations-card";
+import { BulletImproverCard } from "@/components/bullet-improver-card";
 import { JobDescriptionCard } from "@/components/job-description-card";
 import { JobMatchCard } from "@/components/job-match-card";
 import { ResumeUploadCard } from "@/components/resume-upload-card";
@@ -89,8 +90,9 @@ function DashboardPage() {
         <JobMatchCard resumeText={resumeText} />
       </section>
 
-      <section className="mt-8">
+      <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <AiRecommendationsCard resumeText={resumeText} />
+        <BulletImproverCard resumeText={resumeText} />
       </section>
     </div>
   );
