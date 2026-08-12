@@ -58,3 +58,30 @@ export async function uploadResume(file: File): Promise<ResumeUploadResult> {
     body: formData,
   });
 }
+
+export type ATSScoreResult = {
+  overall_score: number;
+  keyword_score: number;
+  skills_score: number;
+  structure_score: number;
+  experience_score: number;
+  project_score: number;
+  formatting_score: number;
+  parsed: ParsedResume;
+};
+
+export const ATS_SCORE_BREAKDOWN: { key: keyof ATSScoreResult; label: string; weight: string }[] = [
+  { key: "keyword_score", label: "Keyword Match", weight: "30%" },
+  { key: "skills_score", label: "Skills Match", weight: "25%" },
+  { key: "structure_score", label: "Resume Structure", weight: "15%" },
+  { key: "experience_score", label: "Experience Relevance", weight: "15%" },
+  { key: "project_score", label: "Project Relevance", weight: "10%" },
+  { key: "formatting_score", label: "Formatting", weight: "5%" },
+];
+
+export async function analyzeResume(extractedText: string): Promise<ATSScoreResult> {
+  return apiRequest<ATSScoreResult>("/resume/analyze", {
+    method: "POST",
+    body: { extracted_text: extractedText },
+  });
+}

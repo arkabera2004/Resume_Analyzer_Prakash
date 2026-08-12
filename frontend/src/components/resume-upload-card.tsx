@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
-import { CheckCircle2, FileText, RotateCcw, UploadCloud } from "lucide-react";
+import { BarChart3, CheckCircle2, FileText, RotateCcw, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
+import { AtsScoreCard } from "@/components/ats-score-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +11,10 @@ import {
   ACCEPTED_RESUME_EXTENSIONS,
   MAX_RESUME_SIZE_MB,
   SKILL_CATEGORY_LABELS,
+  analyzeResume,
   isAcceptedResumeFile,
   uploadResume,
+  type ATSScoreResult,
   type ResumeUploadResult,
 } from "@/lib/resume";
 
@@ -31,7 +34,24 @@ export function ResumeUploadCard() {
   const [result, setResult] = useState<ResumeUploadResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [scoreResult, setScoreResult] = useState<ATSScoreResult | null>(null);
+  const [isScoring, setIsScoring] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handleAnalyze() {
+    if (!result) return;
+    setIsScoring(true);
+    try {
+      const score = await analyzeResume(result.extracted_text);
+      setScoreResult(score);
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : "Unexpected error. Please try again.";
+      toast.error("Scoring failed", { description: message });
+    } finally {
+      setIsScoring(false);
+    }
+  }
 
   async function handleFile(file: File) {
     if (!isAcceptedResumeFile(file)) {
@@ -76,6 +96,7 @@ export function ResumeUploadCard() {
     setStatus("idle");
     setResult(null);
     setErrorMessage(null);
+    setScoreResult(null);
   }
 
   return (
@@ -84,8 +105,8 @@ export function ResumeUploadCard() {
         <CardTitle>Start an analysis</CardTitle>
         <CardDescription>
           {status === "success"
-            ? "Text extracted. ATS scoring and job matching are coming in a later phase."
-            : "Upload a PDF or DOCX resume to extract its text — scoring and matching land next."}
+            ? "Text extracted. Job description matching lands in a later phase."
+            : "Upload a PDF or DOCX resume to get a deterministic ATS score — job matching lands next."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -138,6 +159,15 @@ export function ResumeUploadCard() {
                 );
               })}
             </div>
+
+            {scoreResult ? (
+              <AtsScoreCard result={scoreResult} />
+            ) : (
+              <Button onClick={() => void handleAnalyze()} disabled={isScoring} className="w-full">
+                <BarChart3 className="size-4" />
+                {isScoring ? "Scoring…" : "Calculate ATS Score"}
+              </Button>
+            )}
 
             <details className="rounded-lg border border-border bg-muted/20 p-4">
               <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-muted-foreground">
