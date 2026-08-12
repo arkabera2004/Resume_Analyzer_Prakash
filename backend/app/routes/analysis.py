@@ -1,7 +1,11 @@
-"""Analysis persistence routes — save, list, view, and delete saved analyses."""
+"""Analysis persistence routes — save, list, view, delete, compare, and export
+saved analyses."""
+import re
+
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 
 from app.database import get_analyses_collection
 from app.models.analysis import AnalysisModel
@@ -14,6 +18,7 @@ from app.schemas.analysis import (
     SaveAnalysisRequest,
 )
 from app.services.analysis_serializers import compute_comparison, doc_to_detail, doc_to_summary
+from app.services.report_service import build_analysis_report
 from app.utils.deps import get_current_user
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
@@ -86,3 +91,22 @@ async def delete_analysis(analysis_id: str, current_user: UserModel = Depends(ge
     await get_owned_analysis_or_404(analysis_id, current_user.id)
     analyses = get_analyses_collection()
     await analyses.delete_one({"_id": ObjectId(analysis_id)})
+
+
+def _safe_filename(resume_name: str) -> str:
+    stem = re.sub(r"\.(pdf|docx?)$", "", resume_name, flags=re.IGNORECASE)
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "-", stem).strip("-") or "resume"
+    return f"{stem}-analysis-report.pdf"
+
+
+@router.get("/{analysis_id}/report")
+async def download_report(analysis_id: str, current_user: UserModel = Depends(get_current_user)):
+    doc = await get_owned_analysis_or_404(analysis_id, current_user.id)
+    pdf_bytes = build_analysis_report(doc)
+    filename = _safe_filename(doc["resume_name"])
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
