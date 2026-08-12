@@ -14,9 +14,17 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 import app.database as database_module
 from app.config import get_settings
+from app.utils.rate_limit import limiter
 from main import app
 
 settings = get_settings()
+
+# Rate limiting is keyed by client IP, and httpx's ASGITransport gives every
+# test request the same fake client address — without this, the many
+# register/login calls across the full test suite would collide into 429s
+# unrelated to what each test is actually checking. Rate limiting itself is
+# verified deliberately in test_rate_limiting.py, which re-enables it locally.
+limiter.enabled = False
 
 
 @pytest.fixture(autouse=True)

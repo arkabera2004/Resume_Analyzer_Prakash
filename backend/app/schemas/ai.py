@@ -3,9 +3,11 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.schemas.resume import MAX_RESUME_TEXT_LENGTH
+
 
 class AIRecommendationsRequest(BaseModel):
-    resume_text: str = Field(min_length=1)
+    resume_text: str = Field(min_length=1, max_length=MAX_RESUME_TEXT_LENGTH)
 
 
 class SectionScore(BaseModel):

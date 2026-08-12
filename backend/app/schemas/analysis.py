@@ -12,7 +12,7 @@ class SaveAnalysisRequest(BaseModel):
     recommendations — this endpoint doesn't recompute anything, it just persists
     results the user already generated and chose to save."""
 
-    resume_name: str = Field(min_length=1)
+    resume_name: str = Field(min_length=1, max_length=255)
     job_title: Optional[str] = None
     job_description: Optional[str] = None
     parsed_resume: dict[str, Any] = Field(default_factory=dict)

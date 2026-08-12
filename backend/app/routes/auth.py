@@ -1,11 +1,12 @@
 """Authentication routes: register, login, current-user."""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pymongo.errors import DuplicateKeyError
 
 from app.database import get_users_collection
 from app.models.user import UserModel
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserOut
 from app.utils.deps import get_current_user
+from app.utils.rate_limit import limiter
 from app.utils.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -21,7 +22,8 @@ def _to_user_out(user: UserModel) -> UserOut:
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(payload: RegisterRequest):
+@limiter.limit("5/minute")
+async def register(request: Request, payload: RegisterRequest):
     users = get_users_collection()
 
     new_user = UserModel(
@@ -44,7 +46,8 @@ async def register(payload: RegisterRequest):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(payload: LoginRequest):
+@limiter.limit("10/minute")
+async def login(request: Request, payload: LoginRequest):
     users = get_users_collection()
     user_doc = await users.find_one({"email": payload.email})
 

@@ -1,5 +1,5 @@
 """AI-generated recommendation routes."""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.models.user import UserModel
 from app.schemas.ai import (
@@ -13,12 +13,15 @@ from app.services.bullet_improver import improve_bullet
 from app.services.recommendation_service import get_ai_recommendations
 from app.services.resume_structurer import structure_resume
 from app.utils.deps import get_current_user
+from app.utils.rate_limit import limiter
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 
 @router.post("/recommendations", response_model=AIRecommendationsResponse)
+@limiter.limit("10/minute")
 async def recommendations(
+    request: Request,
     payload: AIRecommendationsRequest,
     _current_user: UserModel = Depends(get_current_user),
 ):
@@ -37,7 +40,9 @@ async def recommendations(
 
 
 @router.post("/improve-bullet", response_model=ImproveBulletResponse)
+@limiter.limit("20/minute")
 async def improve_bullet_route(
+    request: Request,
     payload: ImproveBulletRequest,
     _current_user: UserModel = Depends(get_current_user),
 ):
