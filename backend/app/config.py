@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # AI provider
     ai_provider: str = "gemini"  # "gemini" or "openai"
     ai_api_key: str = ""
-    ai_model: str = "gemini-1.5-flash"
+    ai_model: str = "gemini-2.5-flash"
 
     # Misc
     # Comma-separated list — the frontend's dev server port varies (TanStack Start
