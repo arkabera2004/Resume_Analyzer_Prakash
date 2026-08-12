@@ -2,16 +2,27 @@ import { useRef, useState } from "react";
 import { CheckCircle2, FileText, RotateCcw, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiError } from "@/lib/api";
 import {
   ACCEPTED_RESUME_EXTENSIONS,
   MAX_RESUME_SIZE_MB,
+  SKILL_CATEGORY_LABELS,
   isAcceptedResumeFile,
   uploadResume,
   type ResumeUploadResult,
 } from "@/lib/resume";
+
+const SECTION_LABELS: Record<string, string> = {
+  education: "Education",
+  experience: "Experience",
+  internships: "Internships",
+  projects: "Projects",
+  certifications: "Certifications",
+  achievements: "Achievements",
+};
 
 type Status = "idle" | "uploading" | "success" | "error";
 
@@ -90,15 +101,54 @@ export function ResumeUploadCard() {
                 </p>
               </div>
             </div>
-            <div className="rounded-lg border border-border bg-muted/20 p-4">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {Object.keys(result.parsed.skills).length > 0 && (
+              <div className="rounded-lg border border-border bg-muted/20 p-4">
+                <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Skills detected
+                </p>
+                <div className="space-y-2">
+                  {Object.entries(result.parsed.skills).map(([category, skills]) => (
+                    <div key={category} className="flex flex-wrap items-center gap-1.5">
+                      <span className="mr-1 text-xs text-muted-foreground">
+                        {SKILL_CATEGORY_LABELS[category] ?? category}:
+                      </span>
+                      {skills.map((skill) => (
+                        <Badge key={skill} variant="secondary" className="font-normal">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {Object.entries(SECTION_LABELS).map(([key, label]) => {
+                const count = (result.parsed[key as keyof typeof result.parsed] as string[])
+                  ?.length ?? 0;
+                return (
+                  <div
+                    key={key}
+                    className="rounded-lg border border-border px-3 py-2 text-center"
+                  >
+                    <p className="font-mono text-lg font-semibold text-foreground">{count}</p>
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <details className="rounded-lg border border-border bg-muted/20 p-4">
+              <summary className="cursor-pointer text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Extracted text preview
-              </p>
-              <p className="max-h-40 overflow-y-auto whitespace-pre-wrap text-sm text-foreground/80">
+              </summary>
+              <p className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap text-sm text-foreground/80">
                 {result.extracted_text.slice(0, 1000)}
                 {result.extracted_text.length > 1000 ? "…" : ""}
               </p>
-            </div>
+            </details>
+
             <Button variant="outline" size="sm" onClick={reset}>
               <RotateCcw className="size-4" /> Upload a different resume
             </Button>
