@@ -1,4 +1,6 @@
 """Pydantic request/response schemas for AI-generated resume recommendations."""
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -25,3 +27,17 @@ class AIRecommendationsResponse(BaseModel):
     weaknesses: list[str]
     priority_improvements: list[str]
     recommended_roles: list[RecommendedRole]
+
+
+class ImproveBulletRequest(BaseModel):
+    bullet_text: str = Field(min_length=1, max_length=500)
+    # Optional surrounding resume text, purely for grounding (e.g. so "built the
+    # backend" can be improved with the tech stack already mentioned elsewhere) —
+    # never a license to pull in unrelated facts.
+    context: Optional[str] = Field(default=None, max_length=4000)
+
+
+class ImproveBulletResponse(BaseModel):
+    original: str
+    improved: str
+    why_better: list[str]
