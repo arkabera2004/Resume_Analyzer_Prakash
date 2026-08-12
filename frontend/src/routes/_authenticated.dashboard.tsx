@@ -3,6 +3,7 @@ import { Award, FileUp, Percent, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 
+import { AiRecommendationsCard } from "@/components/ai-recommendations-card";
 import { JobDescriptionCard } from "@/components/job-description-card";
 import { JobMatchCard } from "@/components/job-match-card";
 import { ResumeUploadCard } from "@/components/resume-upload-card";
@@ -86,6 +87,10 @@ function DashboardPage() {
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <JobDescriptionCard />
         <JobMatchCard resumeText={resumeText} />
+      </section>
+
+      <section className="mt-8">
+        <AiRecommendationsCard resumeText={resumeText} />
       </section>
     </div>
   );
