@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Eye, GitCompareArrows, Trash2 } from "lucide-react";
+import { Download, Eye, GitCompareArrows, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -27,6 +27,7 @@ import { ApiError } from "@/lib/api";
 import {
   compareAnalyses,
   deleteAnalysis,
+  downloadAnalysisReport,
   getAnalysis,
   getAnalysisHistory,
   type AnalysisDetail,
@@ -152,6 +153,7 @@ function HistoryPage() {
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [compareResult, setCompareResult] = useState<CompareResult | null>(null);
   const [isComparing, setIsComparing] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const historyQuery = useQuery({
     queryKey: ["analysis", "history"],
@@ -183,11 +185,24 @@ function HistoryPage() {
     }
   }
 
+  async function handleDownload(id: string, resumeName: string) {
+    setDownloadingId(id);
+    try {
+      await downloadAnalysisReport(id, resumeName);
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Unexpected error.";
+      toast.error("Couldn't download report", { description: message });
+    } finally {
+      setDownloadingId(null);
+    }
+  }
+
   async function handleCompare() {
-    if (selected.length !== 2) return;
+    const [idA, idB] = selected;
+    if (!idA || !idB) return;
     setIsComparing(true);
     try {
-      const result = await compareAnalyses(selected[0], selected[1]);
+      const result = await compareAnalyses(idA, idB);
       setCompareResult(result);
     } catch (error) {
       const message = error instanceof ApiError ? error.message : "Unexpected error.";
@@ -276,6 +291,16 @@ function HistoryPage() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="size-8"
+                      onClick={() => void handleDownload(analysis.id, analysis.resume_name)}
+                      disabled={downloadingId === analysis.id}
+                      aria-label="Download report"
+                    >
+                      <Download className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="size-8 text-muted-foreground hover:text-destructive"
                       onClick={() => void handleDelete(analysis.id)}
                       aria-label="Delete analysis"
@@ -300,7 +325,18 @@ function HistoryPage() {
           {detailQuery.isPending ? (
             <Skeleton className="h-40 w-full" />
           ) : detailQuery.data ? (
-            <AnalysisDetailView analysis={detailQuery.data} />
+            <>
+              <AnalysisDetailView analysis={detailQuery.data} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void handleDownload(detailQuery.data.id, detailQuery.data.resume_name)}
+                disabled={downloadingId === detailQuery.data.id}
+              >
+                <Download className="size-4" />
+                {downloadingId === detailQuery.data.id ? "Downloading…" : "Download Report"}
+              </Button>
+            </>
           ) : null}
         </DialogContent>
       </Dialog>

@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest, downloadFile } from "./api";
 import type { ParsedResume } from "./resume";
 
 export type AnalysisSummary = {
@@ -100,4 +100,9 @@ export async function compareAnalyses(idA: string, idB: string): Promise<Compare
     method: "POST",
     body: { analysis_id_a: idA, analysis_id_b: idB },
   });
+}
+
+export async function downloadAnalysisReport(id: string, resumeName: string): Promise<void> {
+  const fallbackName = `${resumeName.replace(/\.(pdf|docx?)$/i, "")}-analysis-report.pdf`;
+  await downloadFile(`/analysis/${id}/report`, fallbackName);
 }
