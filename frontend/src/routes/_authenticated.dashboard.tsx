@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Award, FileUp, Percent, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { JobDescriptionCard } from "@/components/job-description-card";
 import { ResumeUploadCard } from "@/components/resume-upload-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
@@ -77,6 +78,10 @@ function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      <section className="mt-8">
+        <JobDescriptionCard />
       </section>
     </div>
   );
