@@ -29,7 +29,13 @@ const SECTION_LABELS: Record<string, string> = {
 
 type Status = "idle" | "uploading" | "success" | "error";
 
-export function ResumeUploadCard() {
+type ResumeUploadCardProps = {
+  /** Called with the extracted resume text whenever an upload succeeds, so a
+   * sibling component (e.g. the job-match card) can reuse it without re-uploading. */
+  onTextExtracted?: (text: string) => void;
+};
+
+export function ResumeUploadCard({ onTextExtracted }: ResumeUploadCardProps = {}) {
   const [status, setStatus] = useState<Status>("idle");
   const [result, setResult] = useState<ResumeUploadResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -69,6 +75,7 @@ export function ResumeUploadCard() {
       const uploaded = await uploadResume(file);
       setResult(uploaded);
       setStatus("success");
+      onTextExtracted?.(uploaded.extracted_text);
       toast.success("Resume uploaded", { description: "Text extracted successfully." });
     } catch (error) {
       const message =

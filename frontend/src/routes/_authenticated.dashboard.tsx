@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Award, FileUp, Percent, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useState } from "react";
 
 import { JobDescriptionCard } from "@/components/job-description-card";
+import { JobMatchCard } from "@/components/job-match-card";
 import { ResumeUploadCard } from "@/components/resume-upload-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
@@ -37,6 +39,7 @@ const stats: Stat[] = [
 
 function DashboardPage() {
   const { user } = useAuth();
+  const [resumeText, setResumeText] = useState("");
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-12">
@@ -65,7 +68,7 @@ function DashboardPage() {
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-3">
-        <ResumeUploadCard />
+        <ResumeUploadCard onTextExtracted={setResumeText} />
 
         <Card className="border-border shadow-none">
           <CardHeader>
@@ -80,8 +83,9 @@ function DashboardPage() {
         </Card>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <JobDescriptionCard />
+        <JobMatchCard resumeText={resumeText} />
       </section>
     </div>
   );
