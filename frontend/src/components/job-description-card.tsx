@@ -51,8 +51,17 @@ function LineList({ title, lines, emptyLabel }: { title: string; lines: string[]
   );
 }
 
-export function JobDescriptionCard() {
-  const [jobDescription, setJobDescription] = useState("");
+type JobDescriptionCardProps = {
+  /** Shared with JobMatchCard so a single pasted job description drives both
+   * the standalone parse below and the resume match — previously each card
+   * held its own independent textarea, so it was easy to paste a JD into one
+   * and get match results computed against unrelated leftover text in the
+   * other. */
+  jobDescription: string;
+  onJobDescriptionChange: (value: string) => void;
+};
+
+export function JobDescriptionCard({ jobDescription, onJobDescriptionChange }: JobDescriptionCardProps) {
   const [result, setResult] = useState<JobDescriptionAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -79,7 +88,6 @@ export function JobDescriptionCard() {
 
   function reset() {
     setResult(null);
-    setJobDescription("");
   }
 
   return (
@@ -148,7 +156,7 @@ export function JobDescriptionCard() {
           <div className="space-y-3">
             <Textarea
               value={jobDescription}
-              onChange={(event) => setJobDescription(event.target.value)}
+              onChange={(event) => onJobDescriptionChange(event.target.value)}
               placeholder="Paste the full job description here…"
               className="min-h-40 resize-y"
             />

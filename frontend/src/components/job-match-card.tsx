@@ -46,13 +46,20 @@ function SkillBadges({
 
 type JobMatchCardProps = {
   resumeText: string;
+  /** Shared with JobDescriptionCard — see that component for why. */
+  jobDescription: string;
+  onJobDescriptionChange: (value: string) => void;
   /** Called whenever a match completes, so the dashboard can offer to save it
    * alongside the ATS score. */
   onMatchResult?: (jobTitle: string | null, result: MatchResult) => void;
 };
 
-export function JobMatchCard({ resumeText, onMatchResult }: JobMatchCardProps) {
-  const [jobDescription, setJobDescription] = useState("");
+export function JobMatchCard({
+  resumeText,
+  jobDescription,
+  onJobDescriptionChange,
+  onMatchResult,
+}: JobMatchCardProps) {
   const [result, setResult] = useState<MatchResult | null>(null);
   const [isMatching, setIsMatching] = useState(false);
 
@@ -88,7 +95,6 @@ export function JobMatchCard({ resumeText, onMatchResult }: JobMatchCardProps) {
 
   function reset() {
     setResult(null);
-    setJobDescription("");
   }
 
   return (
@@ -178,7 +184,7 @@ export function JobMatchCard({ resumeText, onMatchResult }: JobMatchCardProps) {
           <div className="space-y-3">
             <Textarea
               value={jobDescription}
-              onChange={(event) => setJobDescription(event.target.value)}
+              onChange={(event) => onJobDescriptionChange(event.target.value)}
               placeholder={
                 hasResume
                   ? "Paste the job description here…"

@@ -79,6 +79,11 @@ function DashboardPage() {
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [jobTitle, setJobTitle] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  // Shared between JobDescriptionCard and JobMatchCard so pasting a job
+  // description once feeds both — they used to hold independent copies,
+  // which meant "Analyze" and "Match" could silently run against different
+  // text if you'd typed into one and not the other.
+  const [jobDescriptionText, setJobDescriptionText] = useState("");
 
   const statsQuery = useQuery({
     queryKey: ["dashboard", "stats"],
@@ -247,9 +252,14 @@ function DashboardPage() {
       )}
 
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <JobDescriptionCard />
+        <JobDescriptionCard
+          jobDescription={jobDescriptionText}
+          onJobDescriptionChange={setJobDescriptionText}
+        />
         <JobMatchCard
           resumeText={resumeText}
+          jobDescription={jobDescriptionText}
+          onJobDescriptionChange={setJobDescriptionText}
           onMatchResult={(title, result) => {
             setJobTitle(title);
             setMatchResult(result);
