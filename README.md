@@ -10,6 +10,14 @@ React (TanStack Start) + FastAPI + MongoDB.
 - API: https://resume-analyzer-backend-production-0251.up.railway.app/api
 - API health: [`/api/health`](https://resume-analyzer-backend-production-0251.up.railway.app/api/health) · [`/api/health/db`](https://resume-analyzer-backend-production-0251.up.railway.app/api/health/db)
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Landing page](docs/screenshots/01-landing.jpg) Landing page | ![Dashboard](docs/screenshots/02-dashboard-empty.jpg) Dashboard |
+| ![ATS score](docs/screenshots/03-ats-score.jpg) Deterministic ATS score breakdown | ![Job match](docs/screenshots/04-job-match.jpg) Resume ↔ job match with skill/keyword gaps |
+| ![AI recommendations](docs/screenshots/05-ai-recommendations.jpg) Grounded AI recommendations | |
+
 ## What it does
 
 1. **Upload** a resume (PDF or DOCX) — text is extracted and structured into contact info,
